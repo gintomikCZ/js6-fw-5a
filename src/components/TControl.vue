@@ -1,30 +1,50 @@
 <template>
-  <TInput
-    v-if="settings.type === 'text'"
-    :control="control"
-    :settings="settings"
-    @inputed="onInputed"
-    :error="error"
-    :errorMessage="errorMessage"
-    @blured="validate"
-  />
+  <div class="form-control">
+    <label v-if="settings.label" :for="control">{{ settings.label }}</label>
+
+    <!-- <TInputText v-if="settings.type === 'text'" :control="control" :settings="settings" @inputed="onInputed"
+      :error="error" @blured="$emit('control-blured')" />
+    <TInputNumber v-else-if="settings.type === 'number'" :control="control" :settings="settings" @inputed="onInputed"
+      :error="error" @blured="$emit('control-blured')" />
+    <TTextarea v-else-if="settings.type === 'textarea'" :control="control" :settings="settings" @inputed="onInputed"
+      :error="error" @blured="$emit('control-blured')" /> -->
+
+    <component :is="myComponent" :control="control" :settings="settings" @inputed="onInputed" :error="error"
+      @blured="$emit('control-blured')"></component>
+
+    <transition name="fade">
+      <div class="error-message" v-if="error">{{ errorMessage }}</div>
+    </transition>
+  </div>
 </template>
 
 <script>
-import TInput from '@/components/TInput.vue'
-import validator from '@/utils/validator.js'
+import TInputText from '@/components/TInputText.vue'
+import TInputNumber from '@/components/TInputNumber.vue'
+import TTextarea from '@/components/TTextarea.vue'
+
 
 export default {
   name: 'TControl',
   props: {
     settings: Object,
     control: String,
+    error: Boolean,
+    errorMessage: String
   },
   data () {
     return {
-      value: '',
-      error: false,
-      errorMessage: 'lalala'
+      value: ''
+    }
+  },
+  computed: {
+    myComponent () {
+      const obj = {
+        text: 'TInputText',
+        number: 'TInputNumber',
+        textarea: 'TTextarea'
+      }
+      return obj[this.settings.type]
     }
   },
   methods: {
@@ -32,26 +52,26 @@ export default {
       this.value = value
       this.$emit('control-inputed', { control: this.control, value: this.value })
     },
-    validate() {
-      if (!this.settings.valRules) {
-        return
-      }
-      let error = false
-      this.settings.valRules.forEach((ruleObj) => {
-        if(!error) {
-          if (!validator[ruleObj.rule](this.value, ruleObj.par)) {
-            error = true
-            this.error = true
-            this.errorMessage = ruleObj.message
-          }
-        }
-      })
-      if (!error) {
-        this.error = false
-        this.errorMessage = ''
-      }
-    }
+
   },
-  components: { TInput }
+  components: { TInputText, TInputNumber, TTextarea }
 }
 </script>
+
+<style lang="stylus" scoped>
+@import '../styles/transitions.styl'
+
+.form-control {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
+  position: relative;
+}
+.error-message {
+  color: red;
+  font-style: italic;
+  font-size: 0.9rem;
+  position: absolute;
+  top: 100%;
+}
+</style>

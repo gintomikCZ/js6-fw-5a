@@ -1,17 +1,14 @@
 <template>
-  <div class="form-control">
-    <label v-if="settings.label" :for="control">{{ settings.label }}</label>
+
+
     <input :id="control" type="text" :autocomplete="settings.autocomplete || 'off'"
       :placeholder="settings.placeholder || ''" :autofocus="settings.autofocus || false"
       :disabled="settings.disabled || false" :readonly="settings.readonly || false"
       :inputmode="settings.inputmode || 'text'" :value="value" @input="onInput"
       @blur="onBlur"
+      :class="{invalid: error}"
     >
-    <transition name="fade">
-      <div class="error-message" v-if="error">{{ errorMessage }}</div>
-    </transition>
 
-  </div>
 
 </template>
 
@@ -25,8 +22,7 @@ export default {
     error: {
       type: Boolean,
       default: false
-    },
-    errorMessage: String
+    }
   },
   created () {
     this.value = this.settings.initialValue || ''
@@ -51,26 +47,16 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-@import '../styles/transitions.styl'
 
-.form-control {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2rem;
-  position: relative;
-}
 
 input {
   padding: .4em .8em;
   font-size: 1.1rem;
+  border-image: none;
 }
 
-.error-message {
-  color: red;
-  font-style: italic;
-  font-size: 0.9rem;
-  position: absolute;
-  top: 100%;
+.invalid {
+  border-color: red;
 }
 
 </style>
